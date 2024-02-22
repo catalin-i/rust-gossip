@@ -1,5 +1,5 @@
 [workspace]
 
 members = [
-  "echo",
+  "echo", "unique-id",
 ]
