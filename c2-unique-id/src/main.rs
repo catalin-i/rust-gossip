@@ -17,20 +17,13 @@ struct UuidActor {
 }
 
 impl Actor for UuidActor {
-    fn init(
-        &mut self,
-        node_id: &str,
-        node_ids: Vec<String>,
-    ) -> Result<(), Error> {
+    fn init(&mut self, node_id: &str, node_ids: Vec<String>) -> Result<(), Error> {
         self.node_id = Some(String::from(node_id));
         eprintln!("node {} initialized", node_id);
         Ok(())
     }
 
-    fn receive(
-        &mut self,
-        request: &Request,
-    ) -> Result<Vec<Response>, Error> {
+    fn receive(&mut self, request: &Request) -> Result<Vec<Response>, Error> {
         match request.message_type.as_str() {
             "generate" => self.handle_generate(request),
             _ => unimplemented!("not implemented"),

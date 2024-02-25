@@ -35,15 +35,14 @@ impl Actor for BroadcastActor {
             "broadcast" => self.handle_broadcast(request),
             "read" => self.handle_read(request),
             "topology" => self.handle_topology(request),
-            _ => unimplemented!("no impl for type"),
+            _ => unimplemented!("no impl for type")
         }
     }
 }
 
 impl BroadcastActor {
     pub(crate) fn handle_broadcast(&mut self, request: &Request) -> Result<Vec<Response>, Error> {
-        self.messages
-            .push(request.body.get("message").unwrap().clone());
+        self.messages.push(request.body.get("message").unwrap().clone());
         let body = Map::new();
         Ok(vec![Response::new_from_request(request, body)])
     }

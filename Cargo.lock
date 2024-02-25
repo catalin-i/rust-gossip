@@ -31,6 +31,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "c3b-broadcast"
+version = "0.1.0"
+dependencies = [
+ "maelstrom_rs",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

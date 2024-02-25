@@ -1,5 +1,3 @@
 [workspace]
 
-members = ["c3a-broadcast",
-  "c1-echo", "c2-unique-id",
-]
+members = ["c1-echo", "c2-unique-id", "c3a-broadcast", "c3b-broadcast"]
