@@ -1,5 +1,5 @@
 [package]
-name = "unique-id"
+name = "c2-unique-id"
 version = "0.1.0"
 edition = "2021"
 

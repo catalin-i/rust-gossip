@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use maelstrom_rs::{
     actor::Actor,
     error::Error,
@@ -23,7 +21,7 @@ impl Actor for UuidActor {
         &mut self,
         node_id: &str,
         node_ids: Vec<String>,
-    ) -> Result<(), maelstrom_rs::error::Error> {
+    ) -> Result<(), Error> {
         self.node_id = Some(String::from(node_id));
         eprintln!("node {} initialized", node_id);
         Ok(())
@@ -31,8 +29,8 @@ impl Actor for UuidActor {
 
     fn receive(
         &mut self,
-        request: &maelstrom_rs::message::Request,
-    ) -> Result<Vec<maelstrom_rs::message::Response>, maelstrom_rs::error::Error> {
+        request: &Request,
+    ) -> Result<Vec<Response>, Error> {
         match request.message_type.as_str() {
             "generate" => self.handle_generate(request),
             _ => unimplemented!("not implemented"),

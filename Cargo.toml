@@ -1,5 +1,5 @@
 [workspace]
 
-members = [
-  "echo", "unique-id",
+members = ["c3a-broadcast",
+  "c1-echo", "c2-unique-id",
 ]
