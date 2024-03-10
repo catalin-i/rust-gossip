@@ -35,16 +35,40 @@ impl Actor for BroadcastActor {
             "broadcast" => self.handle_broadcast(request),
             "read" => self.handle_read(request),
             "topology" => self.handle_topology(request),
-            _ => unimplemented!("no impl for type")
+            _ => unimplemented!("no impl for type"),
         }
     }
 }
 
 impl BroadcastActor {
     pub(crate) fn handle_broadcast(&mut self, request: &Request) -> Result<Vec<Response>, Error> {
-        self.messages.push(request.body.get("message").unwrap().clone());
-        let body = Map::new();
-        Ok(vec![Response::new_from_request(request, body)])
+        let mut responses = vec![];
+
+        let value = match request.body.get("message") {
+            Some(value) => value,
+            _ => unreachable!(),
+        };
+
+        if !self.messages.contains(value) {
+            self.messages.push(value.clone());
+
+            for neighbor in &self.neighbours {
+                let mut body = Map::new();
+                body.insert(String::from("message"), value.clone());
+                responses.push(Response {
+                    destination: neighbor.to_string(),
+                    message_type: String::from("broadcast"),
+                    message_id: None,
+                    in_reply_to: None,
+                    body
+                });
+            }
+        }
+
+        if request.message_id.is_some() {
+            responses.push(Response::new_from_request(request, Default::default()))
+        }
+        Ok(responses)
     }
 
     pub(crate) fn handle_read(&self, request: &Request) -> Result<Vec<Response>, Error> {
@@ -53,8 +77,22 @@ impl BroadcastActor {
         Ok(vec![Response::new_from_request(request, body)])
     }
 
-    pub(crate) fn handle_topology(&self, request: &Request) -> Result<Vec<Response>, Error> {
+    pub(crate) fn handle_topology(&mut self, request: &Request) -> Result<Vec<Response>, Error> {
         let body = Map::new();
+        let topology = match request.body.get("topology") {
+            Some(Value::Object(t)) => t,
+            _ => unreachable!(),
+        };
+
+        self.neighbours = match topology.get(self.node_id.as_ref().unwrap()) {
+            Some(Value::Array(n)) => n
+                .iter()
+                .filter_map(|s| s.as_str())
+                .map(String::from)
+                .collect(),
+            _ => return Err(Error::CustomError((1001, String::from("bad topology")))),
+        };
+
         Ok(vec![Response::new_from_request(request, body)])
     }
 }
