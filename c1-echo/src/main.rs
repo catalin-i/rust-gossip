@@ -20,7 +20,7 @@ impl Actor for EchoActor {
     fn init(
         &mut self,
         node_id: &str,
-        node_ids: Vec<String>,
+        _node_ids: Vec<String>,
     ) -> Result<(), maelstrom_rs::error::Error> {
         self.node_id = Some(String::from(node_id));
         eprintln!("node {} initiated", node_id);

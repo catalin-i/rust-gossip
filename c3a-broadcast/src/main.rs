@@ -8,7 +8,6 @@ fn main() {
     let node = BroadcastActor {
         node_id: None,
         node_ids: vec![],
-        neighbours: vec![],
         messages: vec![],
     };
     let mut runtime = Runtime::new(Box::new(node));
@@ -18,7 +17,6 @@ fn main() {
 struct BroadcastActor {
     node_id: Option<String>,
     node_ids: Vec<String>,
-    neighbours: Vec<String>,
     messages: Vec<Value>,
 }
 
