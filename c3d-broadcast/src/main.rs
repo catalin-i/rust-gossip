@@ -76,20 +76,7 @@ impl BroadcastActor {
         };
 
         if !self.messages.contains(&value) {
-            self.messages.replace(value.clone());
-            let num_nodes = self.node_ids.len();
-            // for neighbor in &self.neighbours {
-            //     let mut body = Map::new();
-            //     body.insert(String::from("message"), Value::from(value));
-            //     responses.push(Response {
-            //         source: self.node_id.clone().unwrap(),
-            //         destination: neighbor.to_string(),
-            //         message_type: String::from("broadcast"),
-            //         message_id: None,
-            //         in_reply_to: None,
-            //         body,
-            //     });
-            // }
+            self.messages.replace(value);
         }
 
         if request.message_id.is_some() {
