@@ -33,16 +33,7 @@ impl Actor for BroadcastActor {
     fn init(&mut self, node_id: &str, node_ids: Vec<String>) -> Result<(), Error> {
         self.node_id = Some(node_id.to_string());
         self.node_ids = node_ids;
-        let sender = self.sender.clone();
 
-        thread::spawn(move || loop {
-            thread::sleep(Duration::from_millis(100));
-            sender
-                .as_ref()
-                .expect("no sender")
-                .send(Event::Trigger)
-                .expect("unable to send trigger");
-        });
         eprintln!("Node {} started!", node_id);
         Ok(())
     }
@@ -62,29 +53,11 @@ impl Actor for BroadcastActor {
         let len = self.neighbours.len();
         let mut rng = thread_rng();
         let neigh_index = rng.gen_range(0..len);
-        let dest = self.neighbours.get(neigh_index).unwrap();
-
-        let mut body = Map::new();
-        body.insert(
-            "messages".to_string(),
-            Value::from(
-                self.messages
-                    .iter()
-                    .map(|val| Value::from(*val))
-                    .collect::<Vec<_>>(),
-            ),
-        );
-        eprintln!("pushing gossip!");
-        responses.push({
-            Response {
-                source: self.node_id.clone().unwrap(),
-                destination: dest.to_string(),
-                message_type: "gossip".to_string(),
-                message_id: None,
-                in_reply_to: None,
-                body,
-            }
-        });
+        let node_index = rng.gen_range(0..self.node_ids.len());
+        let neigh_dest = self.neighbours.get(neigh_index).unwrap();
+        let node_dest = format!("n{}", node_index);
+        self.send_to_node(&neigh_dest.clone(), &mut responses);
+        self.send_to_node(&node_dest, &mut responses);
         Ok(responses)
     }
 
@@ -104,19 +77,19 @@ impl BroadcastActor {
 
         if !self.messages.contains(&value) {
             self.messages.replace(value.clone());
-
-            for neighbor in &self.neighbours {
-                let mut body = Map::new();
-                body.insert(String::from("message"), Value::from(value));
-                responses.push(Response {
-                    source: self.node_id.clone().unwrap(),
-                    destination: neighbor.to_string(),
-                    message_type: String::from("broadcast"),
-                    message_id: None,
-                    in_reply_to: None,
-                    body,
-                });
-            }
+            let num_nodes = self.node_ids.len();
+            // for neighbor in &self.neighbours {
+            //     let mut body = Map::new();
+            //     body.insert(String::from("message"), Value::from(value));
+            //     responses.push(Response {
+            //         source: self.node_id.clone().unwrap(),
+            //         destination: neighbor.to_string(),
+            //         message_type: String::from("broadcast"),
+            //         message_id: None,
+            //         in_reply_to: None,
+            //         body,
+            //     });
+            // }
         }
 
         if request.message_id.is_some() {
@@ -155,6 +128,16 @@ impl BroadcastActor {
             _ => return Err(Error::CustomError((1001, String::from("bad topology")))),
         };
 
+        let sender = self.sender.clone();
+        thread::spawn(move || loop {
+            thread::sleep(Duration::from_millis(50));
+            sender
+                .as_ref()
+                .expect("no sender")
+                .send(Event::Trigger)
+                .expect("unable to send trigger");
+        });
+
         Ok(vec![Response::new_from_request(request, body)])
     }
 
@@ -170,5 +153,29 @@ impl BroadcastActor {
             .collect();
         self.messages.extend(values);
         Ok(vec![])
+    }
+
+    fn send_to_node(&mut self, dest: &str, responses: &mut Vec<Response>) {
+        let mut body = Map::new();
+        body.insert(
+            "messages".to_string(),
+            Value::from(
+                self.messages
+                    .iter()
+                    .map(|val| Value::from(*val))
+                    .collect::<Vec<_>>(),
+            ),
+        );
+        eprintln!("pushing gossip!");
+        responses.push({
+            Response {
+                source: self.node_id.clone().unwrap(),
+                destination: dest.to_string(),
+                message_type: "gossip".to_string(),
+                message_id: None,
+                in_reply_to: None,
+                body,
+            }
+        });
     }
 }

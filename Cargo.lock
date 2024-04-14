@@ -50,6 +50,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "c3d-broadcast"
+version = "0.1.0"
+dependencies = [
+ "maelstrom_rs 0.1.0 (git+https://github.com/catalin-i/maelstrom-rs.git)",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
