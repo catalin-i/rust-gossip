@@ -1,6 +1,7 @@
 # Rust gossip protocols
 
 These are solutions to Fly.io's distributed systems challenges 1 to 3: https://fly.io/dist-sys/
+
 For challenges 4 to 6, check out my solutions in Go: https://github.com/catalin-i/go-gossip
 
 ## Instructions
